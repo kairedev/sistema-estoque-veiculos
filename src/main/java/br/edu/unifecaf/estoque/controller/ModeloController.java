@@ -1,6 +1,7 @@
 package br.edu.unifecaf.estoque.controller;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,14 +17,13 @@ import br.edu.unifecaf.estoque.model.Marca;
 import br.edu.unifecaf.estoque.model.Modelo;
 import br.edu.unifecaf.estoque.repository.MarcaRepository;
 import br.edu.unifecaf.estoque.repository.ModeloRepository;
-import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/modelos")
 public class ModeloController {
 
-	private final ModeloRepository modeloRepository;
-	private final MarcaRepository marcaRepository;
+	private ModeloRepository modeloRepository;
+	private MarcaRepository marcaRepository;
 
 	public ModeloController(ModeloRepository modeloRepository, MarcaRepository marcaRepository) {
 		this.modeloRepository = modeloRepository;
@@ -40,15 +40,18 @@ public class ModeloController {
 
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	public Modelo criar(@Valid @RequestBody Modelo modelo) {
-		Long marcaId = modelo.getMarca() != null ? modelo.getMarca().getId() : null;
-		if (marcaId == null) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Informe marca.id");
+	public Modelo criar(@RequestBody Modelo modelo) {
+		if (modelo.getMarca() == null || modelo.getMarca().getId() == null) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Informe a marca (marca.id)");
 		}
-		Marca marca = marcaRepository.findById(marcaId)
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Marca nao encontrada"));
+
+		Optional<Marca> marcaOpt = marcaRepository.findById(modelo.getMarca().getId());
+		if (marcaOpt.isEmpty()) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Marca nao encontrada");
+		}
+
 		modelo.setId(null);
-		modelo.setMarca(marca);
+		modelo.setMarca(marcaOpt.get());
 		return modeloRepository.save(modelo);
 	}
 }

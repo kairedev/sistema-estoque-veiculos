@@ -12,13 +12,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import br.edu.unifecaf.estoque.model.Marca;
 import br.edu.unifecaf.estoque.repository.MarcaRepository;
-import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/marcas")
 public class MarcaController {
 
-	private final MarcaRepository marcaRepository;
+	private MarcaRepository marcaRepository;
 
 	public MarcaController(MarcaRepository marcaRepository) {
 		this.marcaRepository = marcaRepository;
@@ -31,7 +30,7 @@ public class MarcaController {
 
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	public Marca criar(@Valid @RequestBody Marca marca) {
+	public Marca criar(@RequestBody Marca marca) {
 		marca.setId(null);
 		return marcaRepository.save(marca);
 	}

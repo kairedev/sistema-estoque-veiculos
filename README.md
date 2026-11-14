@@ -1,39 +1,30 @@
-# Sistema Automotivo — Estoque de Veículos
+# Sistema Automotivo - Estoque de Veiculos
 
-Aluno: **Kairê Gustavo de Oliveira** · RA **186339**  
-Disciplina: Object Oriented Programming (UniFECAF)
+Aluno: Kaire Gustavo de Oliveira  
+RA: 186339  
+Disciplina: Object Oriented Programming - UniFECAF
 
-API REST em Java + Spring Boot + MySQL para cadastro, filtro, atualização e remoção de veículos.
+Trabalho: API REST com Java, Spring Boot e MySQL.  
+Cadastro de marcas, modelos e veiculos, com consulta, filtro, atualizacao e remocao.
 
-## Pasta do código
+## Como rodar
 
-`modulos/object-oriented-programming/trabalho/sistema-estoque-veiculos`
+1. MySQL ligado (usuario root / senha root, ou ajuste no application.properties)
+2. No PowerShell:
 
-## Endpoints
-
-| Método | URL | Função |
-|--------|-----|--------|
-| GET | `/api/marcas` | listar marcas |
-| POST | `/api/marcas` | criar marca `{"nome":"Toyota"}` |
-| GET | `/api/modelos` | listar modelos |
-| POST | `/api/modelos` | criar modelo `{"nome":"Corolla","marca":{"id":1}}` |
-| GET | `/api/veiculos` | listar / filtrar (`marcaId`, `modeloId`, `ano`, `status`, `precoMin`, `precoMax`) |
-| GET | `/api/veiculos/{id}` | buscar por id |
-| POST | `/api/veiculos` | cadastrar |
-| PUT | `/api/veiculos/{id}` | atualizar |
-| DELETE | `/api/veiculos/{id}` | remover |
-
-Status possíveis: `DISPONIVEL`, `VENDIDO`, `DESCONTINUADO`.
-
-## Como rodar (depois do MySQL)
-
-```powershell
-cd "C:\Users\Pichau\Desktop\fecaf\modulos\object-oriented-programming\trabalho\sistema-estoque-veiculos"
+```
+cd caminho-da-pasta-sistema-estoque-veiculos
 .\mvnw.cmd spring-boot:run
 ```
 
-Ajuste usuário/senha em `src/main/resources/application.properties` se precisar.
+3. Testar no navegador: http://localhost:8080/api/veiculos
 
-## Autor
-Kairê Gustavo de Oliveira — RA 186339  
-UniFECAF — Object Oriented Programming
+## Endpoints principais
+
+- GET/POST /api/marcas
+- GET/POST /api/modelos
+- GET/POST/PUT/DELETE /api/veiculos
+
+Filtros do GET /api/veiculos: marcaId, modeloId, ano, status, precoMin, precoMax
+
+Status: DISPONIVEL, VENDIDO, DESCONTINUADO
