@@ -1,6 +1,5 @@
 package br.edu.unifecaf.estoque.controller;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -34,87 +33,82 @@ public class VeiculoController {
 	private MarcaRepository marcaRepository;
 	private ModeloRepository modeloRepository;
 
-	public VeiculoController(
-			VeiculoRepository veiculoRepository,
-			MarcaRepository marcaRepository,
+	public VeiculoController(VeiculoRepository veiculoRepository, MarcaRepository marcaRepository,
 			ModeloRepository modeloRepository) {
 		this.veiculoRepository = veiculoRepository;
 		this.marcaRepository = marcaRepository;
 		this.modeloRepository = modeloRepository;
 	}
 
-	// GET /api/veiculos — lista todos ou filtra pelos parametros
+	// lista e filtro
 	@GetMapping
 	public List<Veiculo> listar(
 			@RequestParam(required = false) Long marcaId,
 			@RequestParam(required = false) Long modeloId,
 			@RequestParam(required = false) Integer ano,
 			@RequestParam(required = false) StatusVeiculo status,
-			@RequestParam(required = false) BigDecimal precoMin,
-			@RequestParam(required = false) BigDecimal precoMax) {
+			@RequestParam(required = false) Double precoMin,
+			@RequestParam(required = false) Double precoMax) {
 
 		List<Veiculo> todos = veiculoRepository.findAll();
-		List<Veiculo> resultado = new ArrayList<>();
+		List<Veiculo> filtrados = new ArrayList<>();
 
 		for (Veiculo v : todos) {
-			boolean ok = true;
+			boolean passa = true;
 
 			if (marcaId != null && !v.getMarca().getId().equals(marcaId)) {
-				ok = false;
+				passa = false;
 			}
 			if (modeloId != null && !v.getModelo().getId().equals(modeloId)) {
-				ok = false;
+				passa = false;
 			}
 			if (ano != null && !v.getAno().equals(ano)) {
-				ok = false;
+				passa = false;
 			}
 			if (status != null && v.getStatus() != status) {
-				ok = false;
+				passa = false;
 			}
-			if (precoMin != null && v.getPreco().compareTo(precoMin) < 0) {
-				ok = false;
+			if (precoMin != null && v.getPreco() < precoMin) {
+				passa = false;
 			}
-			if (precoMax != null && v.getPreco().compareTo(precoMax) > 0) {
-				ok = false;
+			if (precoMax != null && v.getPreco() > precoMax) {
+				passa = false;
 			}
 
-			if (ok) {
-				resultado.add(v);
+			if (passa) {
+				filtrados.add(v);
 			}
 		}
 
-		return resultado;
+		return filtrados;
 	}
 
-	// GET /api/veiculos/{id}
 	@GetMapping("/{id}")
 	public Veiculo buscar(@PathVariable Long id) {
-		Optional<Veiculo> opcional = veiculoRepository.findById(id);
-		if (opcional.isEmpty()) {
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Veiculo nao encontrado");
+		Optional<Veiculo> veiculo = veiculoRepository.findById(id);
+		if (veiculo.isEmpty()) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "veiculo nao encontrado");
 		}
-		return opcional.get();
+		return veiculo.get();
 	}
 
-	// POST /api/veiculos — cadastra um veiculo novo
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
 	public Veiculo criar(@RequestBody Veiculo veiculo) {
 		veiculo.setId(null);
-		buscarMarcaEModelo(veiculo);
+		colocarMarcaEModelo(veiculo);
 		return veiculoRepository.save(veiculo);
 	}
 
-	// PUT /api/veiculos/{id} — atualiza preco, km, status etc.
 	@PutMapping("/{id}")
 	public Veiculo atualizar(@PathVariable Long id, @RequestBody Veiculo dados) {
-		Optional<Veiculo> opcional = veiculoRepository.findById(id);
-		if (opcional.isEmpty()) {
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Veiculo nao encontrado");
+		Optional<Veiculo> veiculo = veiculoRepository.findById(id);
+		if (veiculo.isEmpty()) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "veiculo nao encontrado");
 		}
 
-		Veiculo atual = opcional.get();
-		buscarMarcaEModelo(dados);
+		Veiculo atual = veiculo.get();
+		colocarMarcaEModelo(dados);
 
 		atual.setMarca(dados.getMarca());
 		atual.setModelo(dados.getModelo());
@@ -127,36 +121,34 @@ public class VeiculoController {
 		return veiculoRepository.save(atual);
 	}
 
-	// DELETE /api/veiculos/{id}
 	@DeleteMapping("/{id}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void remover(@PathVariable Long id) {
 		if (!veiculoRepository.existsById(id)) {
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Veiculo nao encontrado");
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "veiculo nao encontrado");
 		}
 		veiculoRepository.deleteById(id);
 	}
 
-	// Garante que marca e modelo existem no banco antes de salvar
-	private void buscarMarcaEModelo(Veiculo veiculo) {
+	private void colocarMarcaEModelo(Veiculo veiculo) {
 		if (veiculo.getMarca() == null || veiculo.getMarca().getId() == null) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Informe a marca (marca.id)");
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "faltou marca.id");
 		}
 		if (veiculo.getModelo() == null || veiculo.getModelo().getId() == null) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Informe o modelo (modelo.id)");
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "faltou modelo.id");
 		}
 
-		Optional<Marca> marcaOpt = marcaRepository.findById(veiculo.getMarca().getId());
-		Optional<Modelo> modeloOpt = modeloRepository.findById(veiculo.getModelo().getId());
+		Optional<Marca> marca = marcaRepository.findById(veiculo.getMarca().getId());
+		Optional<Modelo> modelo = modeloRepository.findById(veiculo.getModelo().getId());
 
-		if (marcaOpt.isEmpty()) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Marca nao encontrada");
+		if (marca.isEmpty()) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "marca nao existe");
 		}
-		if (modeloOpt.isEmpty()) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Modelo nao encontrado");
+		if (modelo.isEmpty()) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "modelo nao existe");
 		}
 
-		veiculo.setMarca(marcaOpt.get());
-		veiculo.setModelo(modeloOpt.get());
+		veiculo.setMarca(marca.get());
+		veiculo.setModelo(modelo.get());
 	}
 }

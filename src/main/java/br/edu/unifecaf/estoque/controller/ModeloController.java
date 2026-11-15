@@ -42,16 +42,16 @@ public class ModeloController {
 	@ResponseStatus(HttpStatus.CREATED)
 	public Modelo criar(@RequestBody Modelo modelo) {
 		if (modelo.getMarca() == null || modelo.getMarca().getId() == null) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Informe a marca (marca.id)");
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "faltou marca.id");
 		}
 
-		Optional<Marca> marcaOpt = marcaRepository.findById(modelo.getMarca().getId());
-		if (marcaOpt.isEmpty()) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Marca nao encontrada");
+		Optional<Marca> marca = marcaRepository.findById(modelo.getMarca().getId());
+		if (marca.isEmpty()) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "marca nao existe");
 		}
 
 		modelo.setId(null);
-		modelo.setMarca(marcaOpt.get());
+		modelo.setMarca(marca.get());
 		return modeloRepository.save(modelo);
 	}
 }
