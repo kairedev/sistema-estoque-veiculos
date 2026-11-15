@@ -1,30 +1,31 @@
-# Sistema Automotivo - Estoque de Veiculos
+# Estoque de veiculos
 
 Aluno: Kaire Gustavo de Oliveira  
 RA: 186339  
-Disciplina: Object Oriented Programming - UniFECAF
+Materia: Object Oriented Programming - UniFECAF
 
-Trabalho: API REST com Java, Spring Boot e MySQL.  
-Cadastro de marcas, modelos e veiculos, com consulta, filtro, atualizacao e remocao.
+API em Java (Spring Boot) + MySQL.  
+Da pra cadastrar marca, modelo e veiculo, listar, filtrar, atualizar e apagar.
 
-## Como rodar
+## Rodar no PC
 
-1. MySQL ligado (usuario root / senha root, ou ajuste no application.properties)
-2. No PowerShell:
+1. MySQL ligado (eu usei usuario root e senha root)
+2. Abrir PowerShell na pasta do projeto e rodar:
 
 ```
-cd caminho-da-pasta-sistema-estoque-veiculos
 .\mvnw.cmd spring-boot:run
 ```
 
-3. Testar no navegador: http://localhost:8080/api/veiculos
+3. Testar no navegador:
 
-## Endpoints principais
+http://localhost:8080/api/veiculos
 
-- GET/POST /api/marcas
-- GET/POST /api/modelos
-- GET/POST/PUT/DELETE /api/veiculos
+## Rotas que usei
 
-Filtros do GET /api/veiculos: marcaId, modeloId, ano, status, precoMin, precoMax
+- /api/marcas
+- /api/modelos
+- /api/veiculos
+
+No GET de veiculos da pra filtrar com marcaId, modeloId, ano, status, precoMin e precoMax.
 
 Status: DISPONIVEL, VENDIDO, DESCONTINUADO
